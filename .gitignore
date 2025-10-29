@@ -1,0 +1,62 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+pip-wheel-metadata/
+*.spec
+
+# --- Virtual Environment ---
+.venv/
+env/
+ENV/
+.venv/
+
+# --- VS Code ---
+.vscode/
+.settings/
+
+# --- OS-specific ---
+.DS_Store
+Thumbs.db
+
+# --- Data and Logs ---
+data/*.db
+data/*.log
+data/*.csv
+data/*.txt
+
+# --- Cache and Temp Files ---
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+.cache/
+.ipynb_checkpoints/
+__MACOSX/
+
+# --- API and Credentials ---
+.env
+*.key
+*.json
+credentials/
+
+# --- Compiled or Generated Files ---
+*.exe
+*.dll
+*.bin
+*.h5
+*.ckpt
+*.onnx
+
+# --- Misc ---
+*.zip
+*.tar
+*.tar.gz
