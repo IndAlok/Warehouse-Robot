@@ -8,3 +8,10 @@ requests==2.31.0
 Pillow
 sqlalchemy==2.0.35
 qrcode[pil]==7.4.2
+opencv-python
+numpy
+requests
+pandas
+fastapi
+uvicorn
+scipy
