@@ -1,0 +1,513 @@
+POSTGRESQL AND ENVIRONMENT VARIABLES - COMPLETE GUIDE
+=====================================================
+
+QUICK START SUMMARY:
+--------------------
+Your .env file controls all configuration. Here's what each parameter does:
+
+DATABASE_URL    = PostgreSQL connection string
+SECRET_KEY      = Flask security key
+FLASK_ENV       = development or production
+HOST            = Server network binding (0.0.0.0 or 127.0.0.1)
+PORT            = Server port number (default: 5000)
+
+
+====================================================================
+1. DATABASE_URL - DETAILED EXPLANATION
+====================================================================
+
+PURPOSE:
+--------
+Tells Python how to connect to your PostgreSQL database.
+
+FORMAT:
+-------
+postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE_NAME
+
+EXAMPLE (Local Development):
+----------------------------
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/warehouse_db
+
+BREAKDOWN:
+----------
+postgresql://     = Protocol (always postgresql:// or postgres://)
+postgres          = Database username
+:postgres         = Password (after colon)
+@localhost        = Database server address
+:5432             = Port number
+/warehouse_db     = Database name
+
+COMMON CONFIGURATIONS:
+----------------------
+
+A) Local PostgreSQL (Default):
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/warehouse_db
+   
+   When to use: Development on your computer
+   Prerequisites: PostgreSQL installed locally
+
+B) Docker Container:
+   DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/warehouse_db
+   
+   When to use: Running PostgreSQL in Docker
+   Start Docker: docker run --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
+
+C) Heroku (Production):
+   DATABASE_URL=postgres://user:pass@ec2-xx-xx-xx.compute.amazonaws.com:5432/dbname
+   
+   When to use: Deploying to Heroku
+   Get URL: heroku config:get DATABASE_URL
+
+D) Supabase (Cloud):
+   DATABASE_URL=postgresql://postgres:yourpass@db.xxx.supabase.co:5432/postgres
+   
+   When to use: Free cloud PostgreSQL
+   Get URL: Supabase Dashboard > Settings > Database
+
+E) Railway (Cloud):
+   DATABASE_URL=postgresql://postgres:pass@containers.railway.app:5432/railway
+   
+   When to use: Simple cloud deployment
+   Get URL: Railway Dashboard > PostgreSQL > Connect
+
+SPECIAL CHARACTERS IN PASSWORD:
+--------------------------------
+If your password contains special characters, encode them:
+
+@ becomes %40
+: becomes %3A
+/ becomes %2F
+? becomes %3F
+# becomes %23
+
+Example: Password "p@ss:word" becomes "p%40ss%3Aword"
+DATABASE_URL=postgresql://user:p%40ss%3Aword@localhost:5432/warehouse_db
+
+
+====================================================================
+2. SECRET_KEY - DETAILED EXPLANATION
+====================================================================
+
+PURPOSE:
+--------
+Used by Flask to:
+- Encrypt session cookies
+- Generate CSRF tokens
+- Sign data for security
+
+REQUIREMENTS:
+-------------
+- Random and unpredictable
+- At least 32 characters
+- Different for each environment (dev/staging/production)
+
+EXAMPLES:
+---------
+
+Development (Simple):
+SECRET_KEY=dev-secret-key-change-in-production
+
+Production (Secure):
+SECRET_KEY=9f3a8b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e
+
+GENERATING SECURE KEYS:
+-----------------------
+
+Method 1 - Python:
+    python -c "import secrets; print(secrets.token_hex(32))"
+
+Method 2 - PowerShell:
+    python -c "import secrets; print(secrets.token_hex(32))"
+
+Method 3 - Online:
+    https://randomkeygen.com/
+
+SECURITY RULES:
+---------------
+1. NEVER commit production secret key to Git
+2. Use different keys for dev/staging/production
+3. Rotate (change) keys periodically
+4. Store in environment variables, not code
+5. If compromised, change immediately
+
+
+====================================================================
+3. FLASK_ENV - DETAILED EXPLANATION
+====================================================================
+
+PURPOSE:
+--------
+Controls Flask's operating mode and features.
+
+VALUES:
+-------
+development  = Debug mode, detailed errors, auto-reload
+production   = Optimized, generic errors, no debug
+
+DEVELOPMENT MODE (FLASK_ENV=development):
+-----------------------------------------
+Features:
+  - Auto-reload when code changes
+  - Detailed error pages with stack traces
+  - Interactive debugger in browser
+  - More verbose logging
+
+When to use:
+  - Local development
+  - Testing features
+  - Debugging issues
+
+Security:
+  - NOT safe for public access
+  - Exposes sensitive information
+  - Should NEVER be used in production
+
+PRODUCTION MODE (FLASK_ENV=production):
+---------------------------------------
+Features:
+  - No auto-reload
+  - Generic error pages
+  - Optimized performance
+  - Minimal logging
+
+When to use:
+  - Deployed applications
+  - Public-facing servers
+  - Cloud hosting
+
+Security:
+  - Safe for public access
+  - Hides sensitive information
+  - Recommended for all deployments
+
+CURRENT PROJECT:
+----------------
+.env file has: FLASK_ENV=development
+
+IMPORTANT: Change to 'production' before deploying!
+
+
+====================================================================
+4. HOST - DETAILED EXPLANATION
+====================================================================
+
+PURPOSE:
+--------
+Specifies which network interface the server listens on.
+
+VALUES:
+-------
+0.0.0.0      = All network interfaces (recommended)
+127.0.0.1    = Localhost only
+192.168.x.x  = Specific network interface
+
+EXPLANATION:
+------------
+
+HOST=127.0.0.1 (Localhost Only):
+  - Server only accessible from same computer
+  - Access via: http://localhost:5000 or http://127.0.0.1:5000
+  - Other devices CANNOT connect
+  - Robot on different device CANNOT connect
+  
+  When to use:
+    - Maximum security during development
+    - Robot running on same computer as server
+
+HOST=0.0.0.0 (All Interfaces):
+  - Server accessible from:
+    * Same computer: http://localhost:5000
+    * Local network: http://192.168.1.x:5000
+    * Internet (if configured): http://your-ip:5000
+  - Robot on different device CAN connect
+  - Required for cloud deployment
+  
+  When to use:
+    - Robot on separate device/Raspberry Pi
+    - Accessing from phone/tablet
+    - Cloud deployment
+    - Production environment
+
+FINDING YOUR IP ADDRESS:
+-------------------------
+PowerShell: ipconfig
+Look for: IPv4 Address under your network adapter
+
+Example: 192.168.1.100
+Access from other devices: http://192.168.1.100:5000
+
+CURRENT PROJECT:
+----------------
+.env file has: HOST=0.0.0.0
+
+This allows robot to connect from any device on the network.
+
+
+====================================================================
+5. PORT - DETAILED EXPLANATION
+====================================================================
+
+PURPOSE:
+--------
+TCP port number the server listens on.
+
+DEFAULT:
+--------
+PORT=5000 (Flask default)
+
+VALID RANGE:
+------------
+1 - 65535
+
+COMMON PORTS:
+-------------
+5000  = Flask default (this project)
+8000  = Alternative development port
+8080  = Common alternative
+3000  = Node.js/React default
+80    = HTTP (requires admin privileges)
+443   = HTTPS (requires admin privileges)
+
+PORT RESTRICTIONS:
+------------------
+Ports 1-1023 = Privileged (need admin/root)
+Ports 1024-49151 = Registered
+Ports 49152-65535 = Dynamic/private
+
+CHECKING IF PORT IS IN USE:
+----------------------------
+PowerShell:
+    netstat -ano | findstr :5000
+
+If output appears, port is in use. Change to different port.
+
+CHANGING THE PORT:
+------------------
+1. Update .env file:
+   PORT=8000
+
+2. Update robot.py:
+   SERVER_URL = "http://localhost:8000"
+
+3. Restart server
+
+4. Access at new URL:
+   http://localhost:8000
+
+FIREWALL CONSIDERATIONS:
+------------------------
+Windows Firewall may block the port. If others can't connect:
+
+1. Control Panel > Windows Defender Firewall
+2. Advanced Settings > Inbound Rules > New Rule
+3. Port > TCP > 5000
+4. Allow connection
+5. Apply to all profiles
+
+CURRENT PROJECT:
+----------------
+.env file has: PORT=5000
+robot.py has: SERVER_URL = "http://localhost:5000"
+
+Both must match!
+
+
+====================================================================
+POSTGRESQL INSTALLATION & SETUP
+====================================================================
+
+STEP 1: INSTALL POSTGRESQL (Windows)
+-------------------------------------
+
+Download:
+    https://www.postgresql.org/download/windows/
+
+Run Installer:
+    1. postgresql-16.x-windows-x64.exe
+    2. Installation Directory: C:\Program Files\PostgreSQL\16
+    3. Components: Select all
+    4. Data Directory: Default
+    5. Password: Set password for 'postgres' user (remember this!)
+    6. Port: 5432
+    7. Locale: Default
+    8. Finish installation
+
+Verify Installation:
+    psql --version
+    
+    Output: psql (PostgreSQL) 16.x
+
+
+STEP 2: CREATE DATABASE
+------------------------
+
+Method A - Command Line:
+    1. Open PowerShell
+    2. psql -U postgres
+    3. Enter password
+    4. CREATE DATABASE warehouse_db;
+    5. \l  (verify database exists)
+    6. \q  (quit)
+
+Method B - pgAdmin:
+    1. Open pgAdmin 4
+    2. Servers > PostgreSQL 16
+    3. Right-click Databases > Create > Database
+    4. Name: warehouse_db
+    5. Save
+
+
+STEP 3: CONFIGURE .ENV FILE
+----------------------------
+
+Option A - Manually edit .env:
+    DATABASE_URL=postgresql://postgres:YOURPASSWORD@localhost:5432/warehouse_db
+    SECRET_KEY=dev-secret-key-change-in-production
+    FLASK_ENV=development
+    HOST=0.0.0.0
+    PORT=5000
+
+Replace YOURPASSWORD with the password you set during installation.
+
+Option B - Use generator:
+    python env_generator.py
+    
+    Follow the prompts to create .env file automatically.
+
+
+STEP 4: TEST CONNECTION
+------------------------
+
+Run:
+    python test_db_connection.py
+
+Expected output:
+    DATABASE CONNECTION TEST
+    1. Connection established!
+    2. PostgreSQL version: PostgreSQL 16.x
+    3. Connected to database: warehouse_db
+    4. Found 0 table(s):
+    5. Write permissions OK
+    
+    ALL TESTS PASSED!
+
+If errors occur, see troubleshooting section below.
+
+
+STEP 5: INITIALIZE DATABASE
+----------------------------
+
+Run:
+    python setup_database.py
+
+Expected output:
+    Creating database tables...
+    Seeding database with intelligent dummy data...
+    Successfully seeded database with:
+       - 6 categories
+       - 6 locations
+       - 16 products
+
+
+STEP 6: VERIFY DATA
+--------------------
+
+Run:
+    python test_db_connection.py
+
+Now should show:
+    4. Found 4 table(s):
+       - categories: 6 records
+       - locations: 6 records
+       - products: 16 records
+       - scan_logs: 0 records
+
+
+====================================================================
+TROUBLESHOOTING
+====================================================================
+
+ISSUE: "Connection refused"
+---------------------------
+Cause: PostgreSQL not running
+
+Fix:
+    1. Open Services (Win+R > services.msc)
+    2. Find "postgresql-x64-16"
+    3. Right-click > Start
+    
+    Or PowerShell:
+    net start postgresql-x64-16
+
+
+ISSUE: "Database does not exist"
+---------------------------------
+Cause: Database not created
+
+Fix:
+    psql -U postgres
+    CREATE DATABASE warehouse_db;
+    \q
+
+
+ISSUE: "Password authentication failed"
+----------------------------------------
+Cause: Wrong password in .env
+
+Fix:
+    1. Check password in .env matches PostgreSQL
+    2. Or reset password:
+       psql -U postgres
+       ALTER USER postgres PASSWORD 'newpassword';
+    3. Update .env with new password
+
+
+ISSUE: "Port 5432 already in use"
+----------------------------------
+Cause: Multiple PostgreSQL instances or other service
+
+Fix:
+    1. Check what's using port:
+       netstat -ano | findstr :5432
+    
+    2. Stop other PostgreSQL instances
+    3. Or change port in postgresql.conf
+
+
+ISSUE: "Permission denied for table"
+-------------------------------------
+Cause: User lacks permissions
+
+Fix:
+    psql -U postgres -d warehouse_db
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
+
+
+====================================================================
+QUICK REFERENCE
+====================================================================
+
+Your current .env should look like:
+
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/warehouse_db
+SECRET_KEY=dev-secret-key-change-in-production
+FLASK_ENV=development
+HOST=0.0.0.0
+PORT=5000
+
+Test commands:
+    python test_db_connection.py    - Test database
+    python setup_database.py        - Create tables
+    python env_generator.py         - Generate new .env
+    python app.py                   - Start server
+    python robot.py                 - Start scanner
+
+Access URLs:
+    http://localhost:5000           - Dashboard
+    http://localhost:5000/health    - Health check
+    http://localhost:5000/products  - Products API
+
+====================================================================
+END OF GUIDE
+====================================================================

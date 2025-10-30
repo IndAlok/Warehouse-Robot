@@ -1,0 +1,3 @@
+@echo off
+echo Starting Warehouse Robot Server with Dashboard...
+python app.py

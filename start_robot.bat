@@ -1,0 +1,3 @@
+@echo off
+echo Starting Warehouse Robot Scanner...
+python robot.py
